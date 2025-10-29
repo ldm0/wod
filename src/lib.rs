@@ -34,10 +34,10 @@ pub fn write_on_file_diff<H: Hasher + Default>(from: &Path, to: &Path) -> io::Re
         io::copy(&mut BufReader::new(File::open(to)?), &mut to_hash)?;
         Ok(to_hash.0.finish())
     })();
-    if let Ok(to_hash) = to_hash
-        && to_hash != from_hash
-    {
-        fs::copy(from, to)?;
+    if let Ok(to_hash) = to_hash {
+        if to_hash != from_hash {
+            fs::copy(from, to)?;
+        }
     }
     Ok(())
 }
@@ -54,10 +54,10 @@ pub fn write_on_bytes_diff<H: Hasher + Default>(from: &[u8], to: &Path) -> io::R
         io::copy(&mut BufReader::new(File::open(to)?), &mut to_hash)?;
         Ok(to_hash.0.finish())
     })();
-    if let Ok(to_hash) = to_hash
-        && to_hash != from_hash
-    {
-        io::copy(&mut Cursor::new(from), &mut File::create(to)?)?;
+    if let Ok(to_hash) = to_hash {
+        if to_hash != from_hash {
+            io::copy(&mut Cursor::new(from), &mut File::create(to)?)?;
+        }
     }
     Ok(())
 }
@@ -91,8 +91,8 @@ mod tests {
     use rustc_hash::FxHasher;
     use std::fs;
     use std::io::Write;
-    use tempfile::NamedTempFile;
     use tempfile::tempdir;
+    use tempfile::NamedTempFile;
 
     #[test]
     fn test_dir_diff() -> io::Result<()> {

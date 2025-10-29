@@ -22,7 +22,12 @@ impl<T: Hasher> io::Write for HashWriter<T> {
     }
 }
 
-pub fn write_on_file_diff<H: Hasher + Default>(from: &Path, to: &Path) -> io::Result<()> {
+pub fn write_on_file_diff<H: Hasher + Default>(
+    from: impl AsRef<Path>,
+    to: impl AsRef<Path>,
+) -> io::Result<()> {
+    let from = from.as_ref();
+    let to = to.as_ref();
     let build_hasher = BuildHasherDefault::<H>::default();
     let from_hash = {
         let mut from_hash = HashWriter(build_hasher.build_hasher());
@@ -42,7 +47,11 @@ pub fn write_on_file_diff<H: Hasher + Default>(from: &Path, to: &Path) -> io::Re
     Ok(())
 }
 
-pub fn write_on_bytes_diff<H: Hasher + Default>(from: &[u8], to: &Path) -> io::Result<()> {
+pub fn write_on_bytes_diff<H: Hasher + Default>(
+    from: &[u8],
+    to: impl AsRef<Path>,
+) -> io::Result<()> {
+    let to = to.as_ref();
     let build_hasher = BuildHasherDefault::<H>::default();
     let from_hash = {
         let mut from_hash = HashWriter(build_hasher.build_hasher());
@@ -62,7 +71,12 @@ pub fn write_on_bytes_diff<H: Hasher + Default>(from: &[u8], to: &Path) -> io::R
     Ok(())
 }
 
-pub fn write_on_dir_diff<H: Hasher + Default>(from: &Path, to: &Path) -> io::Result<()> {
+pub fn write_on_dir_diff<H: Hasher + Default>(
+    from: impl AsRef<Path>,
+    to: impl AsRef<Path>,
+) -> io::Result<()> {
+    let from = from.as_ref();
+    let to = to.as_ref();
     if !to.exists() {
         fs::create_dir_all(to)?;
     }

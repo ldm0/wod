@@ -1,6 +1,6 @@
 [package]
 name = "wod"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A simple library to write on diff."
 license = "MIT"

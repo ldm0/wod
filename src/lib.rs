@@ -39,10 +39,8 @@ pub fn write_on_file_diff<H: Hasher + Default>(
         io::copy(&mut BufReader::new(File::open(to)?), &mut to_hash)?;
         Ok(to_hash.0.finish())
     })();
-    if let Ok(to_hash) = to_hash {
-        if to_hash != from_hash {
-            fs::copy(from, to)?;
-        }
+    if to_hash.ok() != Some(from_hash) {
+        fs::copy(from, to)?;
     }
     Ok(())
 }
@@ -63,10 +61,8 @@ pub fn write_on_bytes_diff<H: Hasher + Default>(
         io::copy(&mut BufReader::new(File::open(to)?), &mut to_hash)?;
         Ok(to_hash.0.finish())
     })();
-    if let Ok(to_hash) = to_hash {
-        if to_hash != from_hash {
-            io::copy(&mut Cursor::new(from), &mut File::create(to)?)?;
-        }
+    if to_hash.ok() != Some(from_hash) {
+        io::copy(&mut Cursor::new(from), &mut File::create(to)?)?;
     }
     Ok(())
 }
@@ -253,7 +249,9 @@ mod tests {
 
         write_on_file_diff::<FxHasher>(from_file.path(), &to_path)?;
 
-        assert!(!to_path.exists());
+        assert!(to_path.exists());
+        let content = fs::read_to_string(&to_path)?;
+        assert_eq!(content, "hello");
 
         Ok(())
     }
@@ -314,7 +312,9 @@ mod tests {
 
         write_on_bytes_diff::<FxHasher>(from_bytes, &to_path)?;
 
-        assert!(!to_path.exists());
+        assert!(to_path.exists());
+        let content = fs::read_to_string(&to_path)?;
+        assert_eq!(content, "hello");
 
         Ok(())
     }
